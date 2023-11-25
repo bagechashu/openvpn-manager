@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 
@@ -24,7 +25,7 @@ var secrets = gin.H{
 func main() {
 	configPath := flag.String("c", "openvpn-manager.ini", "config file path")
 	flag.Parse()
-	fmt.Println(*configPath)
+
 	cfg, err := ini.Load(*configPath)
 	if err != nil {
 		fmt.Printf("Fail to read file: %v", err)
@@ -32,14 +33,14 @@ func main() {
 	}
 
 	if cfg.Section("").Key("app_mode").In("development", []string{"development", "production"}) == "production" {
-		fmt.Println("[Info] Run at Production mode")
+		log.Println("[Info] Run at Production mode")
 		gin.SetMode(gin.ReleaseMode)
 
 		// Logging to a file.
 		f, _ := os.Create("openvpn-manager.log")
 		gin.DefaultWriter = io.MultiWriter(f)
 	} else {
-		fmt.Println("[Info] Run at Development mode, change configuare 'app_mode = production' to run at Production mode")
+		log.Println("[Info] Run at Development mode, change configuare 'app_mode = production' to run at Production mode")
 	}
 
 	r := gin.Default()
@@ -67,17 +68,37 @@ func main() {
 		"manu":   "4321",
 	}))
 
-	// /admin/secrets endpoint
-	// hit "localhost:8080/admin/secrets
-	r_user.GET("/secrets", func(c *gin.Context) {
-		// get user, it was set by the BasicAuth middleware
-		user := c.MustGet(gin.AuthUserKey).(string)
-		if secret, ok := secrets[user]; ok {
-			c.JSON(http.StatusOK, gin.H{"user": user, "secret": secret})
-		} else {
-			c.JSON(http.StatusOK, gin.H{"user": user, "secret": "NO SECRET :("})
-		}
-	})
+	{
+		// /admin/secrets endpoint
+		// hit "localhost:8080/admin/secrets
+		r_user.GET("/secrets", func(c *gin.Context) {
+			// get user, it was set by the BasicAuth middleware
+			user := c.MustGet(gin.AuthUserKey).(string)
+			if secret, ok := secrets[user]; ok {
+				c.JSON(http.StatusOK, gin.H{"user": user, "secret": secret})
+			} else {
+				c.JSON(http.StatusOK, gin.H{"user": user, "secret": "NO SECRET :("})
+			}
+		})
+		r_user.GET("/add", func(c *gin.Context) {
+			// get user, it was set by the BasicAuth middleware
+			user := c.MustGet(gin.AuthUserKey).(string)
+			if secret, ok := secrets[user]; ok {
+				c.JSON(http.StatusOK, gin.H{"user": user, "secret": secret})
+			} else {
+				c.JSON(http.StatusOK, gin.H{"user": user, "secret": "NO SECRET :("})
+			}
+		})
+		r_user.GET("/revoke", func(c *gin.Context) {
+			// get user, it was set by the BasicAuth middleware
+			user := c.MustGet(gin.AuthUserKey).(string)
+			if secret, ok := secrets[user]; ok {
+				c.JSON(http.StatusOK, gin.H{"user": user, "secret": secret})
+			} else {
+				c.JSON(http.StatusOK, gin.H{"user": user, "secret": "NO SECRET :("})
+			}
+		})
+	}
 
 	http_str := fmt.Sprintf(":%d", cfg.Section("server").Key("http_port").MustInt(8080))
 	endless.ListenAndServe(http_str, r)

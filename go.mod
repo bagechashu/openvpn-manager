@@ -6,6 +6,7 @@ require (
 	github.com/bitfield/script v0.22.0
 	github.com/fvbock/endless v0.0.0-20170109170031-447134032cb6
 	github.com/gin-gonic/gin v1.9.1
+	gopkg.in/ini.v1 v1.67.0
 )
 
 require (
@@ -35,7 +36,6 @@ require (
 	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
-	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	mvdan.cc/sh/v3 v3.6.0 // indirect
 )
