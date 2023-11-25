@@ -25,6 +25,12 @@
       body {
         margin: 0;
         padding: 0;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
       }
       footer {
         text-align: left;
@@ -64,9 +70,7 @@
     <div class="container-wider">
       <!-- 页面内容将显示在这里 -->
       <header onclick="showVPNDetails()">
-        <div>
-          <h1>OpenVPN 用户管理</h1>
-        </div>
+        <h1 style="margin-top: 8px">OpenVPN 用户管理</h1>
       </header>
 
       <nav>
@@ -83,9 +87,7 @@
           <h2 class="text-warning">请谨慎操作</h2>
         </section>
       </div>
-      <footer>
-         &copy; <a href="https://github.com/Nyr/openvpn-install">OpenVPN based on Nyr/openvpn-install</a> 2023
-      </footer>
+      <footer>&copy; <a href="https://github.com/Nyr/openvpn-install">OpenVPN based on Nyr/openvpn-install</a> 2023</footer>
     </div>
 
     <script>
