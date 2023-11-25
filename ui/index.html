@@ -99,17 +99,25 @@
         }
       }
 
-      // 获取 VPN 详情并展示
+      // 获取 VPN 详情并展示所有 JSON 信息
       async function showVPNDetails() {
-        const vpnData = await fetchData("/api/vpn/detail");
+        const vpnData = await fetchData("/api/vpn/info");
         if (vpnData) {
           const content = document.getElementById("content");
-          content.innerHTML = `
-          <h2>VPN 详情</h2>
-          <p>服务器: ${vpnData.server}</p>
-          <p>状态: ${vpnData.status}</p>
-          <!-- 更多VPN详情 -->
-        `;
+          content.innerHTML = "<h3>VPN 详情</h3>";
+
+          const infoList = document.createElement("ul");
+          for (const key in vpnData) {
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `
+            <div class="user-details flex-left">
+              <span class="unit-1-4">${key}</span>
+              <span class="unit-3-4">${vpnData[key]}</span>
+            </div>`;
+            infoList.appendChild(listItem);
+          }
+
+          content.appendChild(infoList);
         }
       }
 
