@@ -180,12 +180,19 @@ func generateClientConfig(client string) error {
 		clientCommon, caCert, clientCert, clientKey, tlsCrypt,
 	))
 
-	clientConfigPath := filepath.Join(os.Getenv("HOME"), client+".ovpn")
+	// 写入客户端配置文件到 ovpn 目录下
+	ovpnDir := "ovpn" // 存放配置文件的目录名
+	err = os.MkdirAll(ovpnDir, 0755)
+	if err != nil {
+		return err
+	}
+
+	clientConfigPath := filepath.Join(ovpnDir, client+".ovpn")
 	err = os.WriteFile(clientConfigPath, clientConfig, 0644)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("客户端配置文件已生成:", clientConfigPath)
+	log.Printf("%s added. Configuration available in: %s", client, clientConfigPath)
 	return nil
 }
