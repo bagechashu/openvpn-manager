@@ -189,11 +189,34 @@
       // 添加用户
       function addUser() {
         const userName = document.getElementById("userName").value;
-        // 假设此处向服务器发送添加用户的请求，并获取返回的数据
-        // 这里是模拟数据
-        const userAdded = { name: userName, profile: "新用户配置文件" };
-        const userAddedDiv = document.getElementById("userAdded");
-        userAddedDiv.textContent = `用户名：${userAdded.name}，配置文件：${userAdded.profile}`;
+
+        // 创建XMLHttpRequest对象
+        const xhr = new XMLHttpRequest();
+
+        // 设置POST请求，发送JSON数据
+        xhr.open("POST", "/api/user/add", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        // 处理服务器响应
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              const response = JSON.parse(xhr.responseText);
+              if (response.status === "success") {
+                const userAddedDiv = document.getElementById("userAdded");
+                userAddedDiv.textContent = `用户名：${response.response.username}，消息：${response.response.msg}`;
+              } else {
+                console.error("添加用户失败");
+              }
+            } else {
+              console.error("发生错误");
+            }
+          }
+        };
+
+        // 发送数据到服务器
+        const data = JSON.stringify({ username: userName });
+        xhr.send(data);
       }
 
       // 展示删除用户界面
