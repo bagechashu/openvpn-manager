@@ -185,7 +185,11 @@
                 const userList = document.createElement("ul");
                 response.response.users.forEach((username) => {
                   const li = document.createElement("li");
-                  li.textContent = username;
+                  li.innerHTML = `<div class="user-details flex-left">
+                    <span class="unit">${username}</span>
+                    <span class="unit"><a href="/api/user/cert/${username}.ovpn"> ovpn文件 </a></span>
+                  </div>
+                  `;
                   userList.appendChild(li);
                 });
                 content.appendChild(userList);

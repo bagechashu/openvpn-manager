@@ -52,7 +52,7 @@ func main() {
 		c.Redirect(http.StatusMovedPermanently, "web/")
 	})
 
-	r.StaticFS("/web", http.Dir("./web"))
+	r.StaticFS("/web", http.Dir("./web/"))
 
 	// Group using gin.BasicAuth() middleware
 	// gin.Accounts is a shortcut for map[string]string
@@ -78,7 +78,7 @@ func main() {
 		r_user.POST("/add", openvpn.HandlerVpnUserAdd)
 		r_user.DELETE("/revoke", openvpn.HandlerVpnUserRevoke)
 		r_user.GET("/show", openvpn.HandlerVpnUserShow)
-		r_user.GET("/cert", openvpn.HandlerVpnUserCert)
+		r_user.GET("/cert/:filename", openvpn.HandlerVpnUserCert)
 	}
 
 	http_str := fmt.Sprintf(":%d", cfg.Section("server").Key("http_port").MustInt(8080))
