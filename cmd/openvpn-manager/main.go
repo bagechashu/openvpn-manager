@@ -76,24 +76,9 @@ func main() {
 			}
 		})
 		r_user.POST("/add", openvpn.HandlerVpnUserAdd)
-		r_user.GET("/download", func(c *gin.Context) {
-			// get user, it was set by the BasicAuth middleware
-			user := c.MustGet(gin.AuthUserKey).(string)
-			if secret, ok := config.Secrets[user]; ok {
-				c.JSON(http.StatusOK, gin.H{"user": user, "secret": secret})
-			} else {
-				c.JSON(http.StatusOK, gin.H{"user": user, "secret": "NO SECRET :("})
-			}
-		})
-		r_user.DELETE("/revoke", func(c *gin.Context) {
-			// get user, it was set by the BasicAuth middleware
-			user := c.MustGet(gin.AuthUserKey).(string)
-			if secret, ok := config.Secrets[user]; ok {
-				c.JSON(http.StatusOK, gin.H{"user": user, "secret": secret})
-			} else {
-				c.JSON(http.StatusOK, gin.H{"user": user, "secret": "NO SECRET :("})
-			}
-		})
+		r_user.DELETE("/revoke", openvpn.HandlerVpnUserRevoke)
+		r_user.GET("/show", openvpn.HandlerVpnUserShow)
+		r_user.GET("/cert", openvpn.HandlerVpnUserCert)
 	}
 
 	http_str := fmt.Sprintf(":%d", cfg.Section("server").Key("http_port").MustInt(8080))

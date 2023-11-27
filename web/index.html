@@ -32,28 +32,38 @@
         -ms-user-select: none;
         user-select: none;
       }
+
       footer {
         text-align: left;
         padding: 8px 0;
       }
+
       /* 对于非移动设备（宽度大于768px） */
       @media (min-width: 768px) {
         body {
           display: flex;
-          justify-content: center; /* 水平居中 */
-          align-items: center; /* 垂直居中 */
-          height: 100vh; /* 铺满整个屏幕高度 */
-          background-color: #f2f2f2; /* 非 body 部分浅灰色 */
+          justify-content: center;
+          /* 水平居中 */
+          align-items: center;
+          /* 垂直居中 */
+          height: 100vh;
+          /* 铺满整个屏幕高度 */
+          background-color: #f2f2f2;
+          /* 非 body 部分浅灰色 */
         }
+
         #content {
-          background-color: white; /* body 内容部分白色 */
+          background-color: white;
+          /* body 内容部分白色 */
           padding: 20px;
         }
       }
+
       ul {
         list-style: none;
         padding: 0;
       }
+
       li {
         margin-bottom: 10px;
         border-radius: 5px;
@@ -61,11 +71,13 @@
         padding: 15px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
+
       .user-details {
         display: flex;
       }
     </style>
   </head>
+
   <body>
     <div class="container-wider">
       <!-- 页面内容将显示在这里 -->
@@ -156,21 +168,38 @@
 
       // 展示所有用户
       function showUsers() {
-        const users = getUsers();
-        const content = document.getElementById("content");
-        content.innerHTML = "<h3>所有用户</h3>";
-        const userList = document.createElement("ul");
-        users.forEach((user) => {
-          const li = document.createElement("li");
-          li.innerHTML = `
-          <div class="user-details flex-left">
-            <span class="unit">${user.name}</span>
-            <span class="unit">${user.addedAt}</span>
-            <span class="unit">${user.profile}</span>
-          </div>`;
-          userList.appendChild(li);
-        });
-        content.appendChild(userList);
+        // 创建 XMLHttpRequest 对象
+        const xhr = new XMLHttpRequest();
+
+        // 发起 GET 请求
+        xhr.open("GET", "/api/user/show", true);
+
+        // 处理服务器响应
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              const response = JSON.parse(xhr.responseText);
+              if (response.status === "success") {
+                const content = document.getElementById("content");
+                content.innerHTML = `<h3>${response.response.msg}</h3>`;
+                const userList = document.createElement("ul");
+                response.response.users.forEach((username) => {
+                  const li = document.createElement("li");
+                  li.textContent = username;
+                  userList.appendChild(li);
+                });
+                content.appendChild(userList);
+              } else {
+                console.error("获取用户列表失败");
+              }
+            } else {
+              console.error("发生错误");
+            }
+          }
+        };
+
+        // 发送请求
+        xhr.send();
       }
 
       // 展示添加用户表单
