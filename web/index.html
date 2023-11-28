@@ -10,6 +10,7 @@
 
     <!-- Title of the page -->
     <title>openvpn manager</title>
+    <link rel="icon" type="image/x-icon" href="ovpnmgr.ico" />
 
     <!-- Mobi.css -->
     <link rel="stylesheet" href="https://unpkg.com/mobi.css/dist/mobi.min.css" />
@@ -75,21 +76,65 @@
       .user-details {
         display: flex;
       }
+      /* 标签样式 */
+      .toggle-label {
+        display: inline-block;
+        font-weight: bold;
+        margin-bottom: 10px; /* 可根据需要调整上下间距 */
+      }
+
+      /* 开关样式 */
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 40px;
+        height: 20px;
+        -webkit-appearance: none;
+        appearance: none;
+        outline: none;
+        border-radius: 20px;
+        background-color: #ccc;
+        transition: background-color 0.3s ease;
+        vertical-align: middle;
+        margin: 5px 0 0 10px;
+      }
+
+      .toggle-switch:checked {
+        background-color: #4caf50; /* 设置开关打开时的背景色 */
+      }
+
+      .toggle-switch::before {
+        content: "";
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: white;
+        transition: transform 0.3s ease;
+        top: 50%;
+        transform: translateY(-50%);
+        left: 2px;
+      }
+
+      .toggle-switch:checked::before {
+        left: calc(100% - 2px);
+        transform: translate(-100%, -50%);
+      }
     </style>
   </head>
 
   <body>
     <div class="container-wider">
       <!-- 页面内容将显示在这里 -->
-      <header onclick="showVPNDetails()">
-        <h1 style="margin-top: 8px">OpenVPN 用户管理</h1>
+      <header class="flex-left" onclick="showVPNDetails()">
+        <img src="ovpnmgr.png" style="width: 40px; height: 40px; margin: 12px 10px 0 10px" />
+        <h2 style="margin-top: 12px">OpenVPN Manager</h2>
       </header>
 
       <nav>
         <div class="flex-left">
-          <button class="unit container-wider btn btn-primary" onclick="showUsers()">所有用户</button>
-          <button class="unit container-wider btn btn-primary" onclick="showAddUserForm()">添加用户</button>
-          <button class="unit container-wider btn btn-primary" onclick="showDeleteUser()">删除用户</button>
+          <button class="unit container-wider btn btn-primary" onclick="showVPNDetails()">Vpn Info</button>
+          <button class="unit container-wider btn btn-primary" onclick="showUserManager()">User Manager</button>
         </div>
       </nav>
 
@@ -120,7 +165,7 @@
         const vpnData = await fetchData("/api/vpn/info");
         if (vpnData) {
           const content = document.getElementById("content");
-          content.innerHTML = "<h3>VPN 详情</h3>";
+          content.innerHTML = "<h3>VPN IpInfo</h3>";
 
           const infoList = document.createElement("ul");
           for (const key in vpnData) {
@@ -139,38 +184,22 @@
 
       // 初始加载页面时展示 VPN 详情
       showVPNDetails();
-      // 通过 AJAX 获取数据
-      function getUsers() {
-        // 假设此处使用 fetch 或 XMLHttpRequest 请求获取用户数据，然后展示在页面上
-        // 这里是模拟数据
-        const users = [
-          { id: 1, name: "用户1", profile: "配置文件1", addedAt: "2023-11-24" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户2", profile: "配置文件2", addedAt: "2023-11-23" },
-          { id: 2, name: "用户latest", profile: "配置文件2", addedAt: "2023-11-23" },
-          // 更多用户...
-        ];
-        return users;
-      }
 
       // 展示所有用户
-      function showUsers() {
+      function showUserManager() {
+        const content = document.getElementById("content");
+        content.innerHTML = `
+        <h3>Add User</h3>
+        <div class="form flex-left user-details">
+            <input class="unit-3-4" type="text" id="userName" placeholder="Example: user-20231128">
+            <button class="btn unit-1-4" onclick="addUser()">Create</button>
+        </div>
+
+        <div id="xhr-response"></div>
+        `;
+
         // 创建 XMLHttpRequest 对象
         const xhr = new XMLHttpRequest();
-
         // 发起 GET 请求
         xhr.open("GET", "/api/user/show", true);
 
@@ -180,14 +209,21 @@
             if (xhr.status === 200) {
               const response = JSON.parse(xhr.responseText);
               if (response.status === "success") {
-                const content = document.getElementById("content");
-                content.innerHTML = `<h3>${response.response.msg}</h3>`;
+                const msg = document.createElement("h3");
+                msg.classList.add("user-details", "flex-left");
+                msg.innerHTML = `<div class="unit-3-4">Users: ${response.response.count}</div>
+                <label class="toggle-label" for="toggleManager">Edit</label>
+                <input class="toggle-switch"" type="checkbox" id="toggleManager" onchange="toggleElementsVisibility()">
+                `;
+                content.appendChild(msg);
+
                 const userList = document.createElement("ul");
                 response.response.users.forEach((username) => {
                   const li = document.createElement("li");
-                  li.innerHTML = `<div class="user-details flex-left">
-                    <span class="unit">${username}</span>
-                    <span class="unit"><a href="/api/user/cert/${username}.ovpn"> ovpn文件 </a></span>
+                  li.innerHTML = `<div class="flex-left user-details">
+                    <div class="unit-3-4">${username}</div>
+                    <a class="unit-1-4" href="/api/user/cert/${username}.ovpn"> Download ovpn file </a>
+                    <button class="unit-1-4 btn-danger" style="display: none" id="deleteUser-${username}" onclick="deleteUser('${username}')">Delete</button>
                   </div>
                   `;
                   userList.appendChild(li);
@@ -206,19 +242,6 @@
         xhr.send();
       }
 
-      // 展示添加用户表单
-      function showAddUserForm() {
-        const content = document.getElementById("content");
-        content.innerHTML = `
-        <div class="form">
-            <h3>添加用户</h3>
-            <input type="text" id="userName" placeholder="输入用户名">
-            <button class="btn" onclick="addUser()">添加用户</button>
-            <div id="userAdded"></div>
-        </div>
-      `;
-      }
-
       // 添加用户
       function addUser() {
         const userName = document.getElementById("userName").value;
@@ -229,20 +252,22 @@
         // 设置POST请求，发送JSON数据
         xhr.open("POST", "/api/user/add", true);
         xhr.setRequestHeader("Content-Type", "application/json");
-
+        const xhrResp = document.getElementById("xhr-response");
         // 处理服务器响应
         xhr.onreadystatechange = function () {
           if (xhr.readyState === XMLHttpRequest.DONE) {
-            if (xhr.status === 200) {
+            if (xhr.status === 200 || xhr.status === 209) {
               const response = JSON.parse(xhr.responseText);
               if (response.status === "success") {
-                const userAddedDiv = document.getElementById("userAdded");
-                userAddedDiv.textContent = `用户名：${response.response.username}，消息：${response.response.msg}`;
+                xhrResp.classList.value = "text-primary";
+                xhrResp.textContent = `[${response.response.username}] create successfully, download ovpn file at below.`;
               } else {
-                console.error("添加用户失败");
+                xhrResp.classList.value = "text-danger";
+                xhrResp.textContent = `[${response.response.username}] ${response.response.msg}`;
               }
             } else {
-              console.error("发生错误");
+              xhrResp.classList.value = "text-danger";
+              xhrResp.textContent = `create failed: request error`;
             }
           }
         };
@@ -252,51 +277,49 @@
         xhr.send(data);
       }
 
-      // 展示删除用户界面
-      function showDeleteUser() {
-        const users = getUsers();
-        const sortedUsers = users.sort((a, b) => new Date(b.addedAt) - new Date(a.addedAt));
+      // 删除用户函数
+      function deleteUser(username) {
+        // 构建删除用户请求
+        const xhr = new XMLHttpRequest();
+        xhr.open("DELETE", `/api/user/revoke/${username}`, true);
 
-        const content = document.getElementById("content");
-        content.innerHTML = "<h3>删除用户</h3>";
-        const deleteUserList = document.createElement("ul");
-        sortedUsers.forEach((user) => {
-          const li = document.createElement("li");
-          const userContainer = document.createElement("div");
-          userContainer.classList.add("user-details", "flex-left");
-
-          const userName = document.createElement("span");
-          userName.classList.add("unit");
-          userName.textContent = user.name;
-
-          const userAdded = document.createElement("span");
-          userAdded.classList.add("unit");
-          userAdded.textContent = user.addedAt;
-
-          const deleteButton = document.createElement("button");
-          deleteButton.classList.add("btn");
-          deleteButton.style.marginTop = "0";
-          deleteButton.textContent = "删除";
-          deleteButton.onclick = function () {
-            const password = prompt("请输入管理员密码:");
-            // 假设此处验证密码，并执行删除操作
-            if (password === "admin_password") {
-              // 这里应该发送删除用户的请求
-              alert(`用户 ${user.name} 已被删除！`);
-              // 在这个示例中，只是在页面上移除了该用户信息
-              li.remove();
+        const xhrResp = document.getElementById("xhr-response");
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200 || xhr.status === 209) {
+              xhrResp.classList.value = "text-primary";
+              xhrResp.textContent = `[${response.response.username}] revoke successfully.`;
             } else {
-              alert("密码错误，无法删除用户！");
+              xhrResp.classList.value = "text-danger";
+              xhrResp.textContent = `[${response.response.username}] ${response.response.msg}`;
             }
-          };
+          } else {
+            xhrResp.classList.value = "text-danger";
+            xhrResp.textContent = `revoke failed: request error`;
+          }
+        };
 
-          userContainer.appendChild(userName);
-          userContainer.appendChild(userAdded);
-          userContainer.appendChild(deleteButton);
-          li.appendChild(userContainer);
-          deleteUserList.appendChild(li);
+        // 发送删除用户请求
+        xhr.send();
+      }
+
+      // 初始状态下显示 a 标签，隐藏 button
+      function toggleElementsVisibility() {
+        const toggleManager = document.getElementById("toggleManager");
+        const userListItems = document.querySelectorAll("ul > li");
+
+        userListItems.forEach((item) => {
+          const link = item.querySelector("a");
+          const button = item.querySelector("button");
+
+          if (toggleManager.checked) {
+            link.style.display = "none"; // 隐藏 a 标签
+            button.style.display = "inline-block"; // 显示 button
+          } else {
+            link.style.display = "block"; // 显示 a 标签
+            button.style.display = "none"; // 隐藏 button
+          }
         });
-        content.appendChild(deleteUserList);
       }
     </script>
   </body>

@@ -76,7 +76,7 @@ func main() {
 			}
 		})
 		r_user.POST("/add", openvpn.HandlerVpnUserAdd)
-		r_user.DELETE("/revoke", openvpn.HandlerVpnUserRevoke)
+		r_user.DELETE("/revoke/:username", openvpn.HandlerVpnUserRevoke)
 		r_user.GET("/show", openvpn.HandlerVpnUserShow)
 		r_user.GET("/cert/:filename", openvpn.HandlerVpnUserCert)
 	}

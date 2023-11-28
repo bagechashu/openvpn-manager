@@ -37,7 +37,8 @@ func HandlerVpnUserShow(c *gin.Context) {
 		"status": "success",
 		"response": gin.H{
 			"users": users,
-			"msg":   fmt.Sprintf("number of users: %d", len(users)),
+			"count": len(users),
+			"msg":   fmt.Sprintf("user query successfully"),
 		},
 	})
 }

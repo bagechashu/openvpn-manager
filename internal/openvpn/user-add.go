@@ -45,11 +45,11 @@ func HandlerVpnUserAdd(c *gin.Context) {
 	username, err := userAdd(requestBody.Username)
 	if err != nil {
 		log.Printf("error: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(209, gin.H{
 			"status": "failed",
 			"response": gin.H{
 				"username": username,
-				"msg":      err,
+				"msg":      fmt.Sprintf("error: %v", err),
 			},
 		})
 		return
@@ -58,7 +58,7 @@ func HandlerVpnUserAdd(c *gin.Context) {
 		"status": "success",
 		"response": gin.H{
 			"username": username,
-			"msg":      "user added",
+			"msg":      "user added successfully",
 		},
 	})
 }
