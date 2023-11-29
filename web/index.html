@@ -120,6 +120,10 @@
         left: calc(100% - 2px);
         transform: translate(-100%, -50%);
       }
+
+      .right {
+        margin-left: auto;
+      }
     </style>
   </head>
 
@@ -212,12 +216,13 @@
                 const msg = document.createElement("h3");
                 msg.classList.add("user-details", "flex-left");
                 msg.innerHTML = `<div class="unit-3-4">Users: ${response.response.count}</div>
-                <label class="toggle-label" for="toggleManager">Edit</label>
+                <label class="toggle-label right" for="toggleManager">Edit</label>
                 <input class="toggle-switch"" type="checkbox" id="toggleManager" onchange="toggleElementsVisibility()">
                 `;
                 content.appendChild(msg);
 
                 const userList = document.createElement("ul");
+                userList.id = "userList";
                 response.response.users.forEach((username) => {
                   const li = document.createElement("li");
                   li.innerHTML = `<div class="flex-left user-details">
@@ -240,6 +245,45 @@
 
         // 发送请求
         xhr.send();
+      }
+
+      function refreshUserList() {
+        // 创建 XMLHttpRequest 对象
+        const xhr = new XMLHttpRequest();
+        // 发起 GET 请求
+        xhr.open("GET", "/api/user/show", true);
+
+        // 处理服务器响应
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            if (xhr.status === 200) {
+              const response = JSON.parse(xhr.responseText);
+              if (response.status === "success") {
+                const userList = document.getElementById("userList");
+                userList.innerHTML = "";
+                response.response.users.forEach((username) => {
+                  const li = document.createElement("li");
+                  li.innerHTML = `<div class="flex-left user-details">
+                    <div class="unit-3-4">${username}</div>
+                    <a class="unit-1-4" href="/api/user/cert/${username}.ovpn"> Download ovpn file </a>
+                    <button class="unit-1-4 btn-danger" style="display: none" id="deleteUser-${username}" onclick="deleteUser('${username}')">Delete</button>
+                  </div>
+                  `;
+                  userList.appendChild(li);
+                });
+              } else {
+                console.error("获取用户列表失败");
+              }
+            } else {
+              console.error("发生错误");
+            }
+          }
+        };
+
+        // 等 2s 后发送请求
+        setTimeout(function () {
+          xhr.send();
+        }, 1500);
       }
 
       // 添加用户
@@ -275,6 +319,8 @@
         // 发送数据到服务器
         const data = JSON.stringify({ username: userName });
         xhr.send(data);
+
+        refreshUserList();
       }
 
       // 删除用户函数
@@ -287,20 +333,25 @@
         xhr.onreadystatechange = function () {
           if (xhr.readyState === XMLHttpRequest.DONE) {
             if (xhr.status === 200 || xhr.status === 209) {
-              xhrResp.classList.value = "text-primary";
-              xhrResp.textContent = `[${response.response.username}] revoke successfully.`;
+              const response = JSON.parse(xhr.responseText);
+              if (response.status === "success") {
+                xhrResp.classList.value = "text-primary";
+                xhrResp.textContent = `[${response.response.username}] revoke successfully.`;
+              } else {
+                xhrResp.classList.value = "text-danger";
+                xhrResp.textContent = `[${response.response.username}] ${response.response.msg}`;
+              }
             } else {
               xhrResp.classList.value = "text-danger";
-              xhrResp.textContent = `[${response.response.username}] ${response.response.msg}`;
+              xhrResp.textContent = `revoke failed: request error`;
             }
-          } else {
-            xhrResp.classList.value = "text-danger";
-            xhrResp.textContent = `revoke failed: request error`;
           }
         };
 
         // 发送删除用户请求
         xhr.send();
+
+        refreshUserList();
       }
 
       // 初始状态下显示 a 标签，隐藏 button
