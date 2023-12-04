@@ -4,13 +4,8 @@
   <div></div>
 </template>
 
-<script>
-import { defineComponent } from "vue";
+<script setup>
 import { useDialog } from "naive-ui";
 
-export default defineComponent({
-  setup() {
-    window.$dialog = useDialog();
-  },
-});
+window.$dialog = useDialog();
 </script>
