@@ -28,7 +28,7 @@ if (Object.keys(vpnInfo.value).length === 0) {
   getInfo()
     .then((res) => {
       vpnStore.vpnInfo.value = res;
-      console.log(vpnInfo.value);
+      // console.log(vpnInfo.value);
     })
     .catch((error) => {
       console.error("Error fetching VPN info:", error);

@@ -4,14 +4,9 @@ import { getInfo } from "../api/vpninfo";
 
 export const useVpnStore = defineStore('vpn', () => {
     const vpnInfo = reactive({})
-    async function getVpnInfo() {
-        getInfo()
-            .then((res) => {
-                vpnInfo.value = res;
-            })
-            .catch((error) => {
-                console.error("Error fetching VPN info:", error);
-            });
+    const getVpnInfo = async () => {
+        const res = await getInfo()
+        vpnInfo.value = res
     }
     return { vpnInfo, getVpnInfo }
 })
