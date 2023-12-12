@@ -22,10 +22,14 @@
   <n-back-top :right="100" />
 </template>
 
-<script>
+<script setup>
 import { ref, h, defineComponent } from "vue";
 import { NButton, NModal } from "naive-ui";
 
+const data = [{ username: "Wonderwall" }, { username: "Don't Look Back in Anger" }, { username: "Champagne Supernova" }];
+const pagination = {
+  pageSize: 10,
+};
 const createColumns = ({ deleteUser }) => {
   return [
     {
@@ -63,31 +67,20 @@ const createColumns = ({ deleteUser }) => {
     },
   ];
 };
-
-const data = [{ username: "Wonderwall" }, { username: "Don't Look Back in Anger" }, { username: "Champagne Supernova" }];
-
-export default defineComponent({
-  setup() {
-    return {
-      data,
-      columns: createColumns({
-        deleteUser(row) {
-          window.$message.info(`deleteUser ${row.title}`);
-        },
-      }),
-      pagination: {
-        pageSize: 10,
-      },
-      showCreateUserModal: ref(false),
-      cancelCallback() {
-        window.$message.warning("Cancel");
-      },
-      submitCallback() {
-        window.$message.success("Submit");
-      },
-    };
+const columns = createColumns({
+  deleteUser(row) {
+    window.$message.info(`deleteUser ${row.title}`);
   },
 });
+
+const showCreateUserModal = ref(false);
+let username = "";
+function cancelCallback() {
+  window.$message.warning("Cancel");
+}
+function submitCallback() {
+  window.$message.success("Submit");
+}
 </script>
 
 <style scoped>
