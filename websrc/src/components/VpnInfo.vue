@@ -19,7 +19,7 @@
 <script setup>
 import { storeToRefs } from "pinia";
 import { useVpnStore } from "../stores/vpn";
-import { getInfo } from "../api/vpninfo";
+import { getInfo } from "../api/vpn";
 
 const vpnStore = useVpnStore();
 const { vpnInfo } = storeToRefs(vpnStore);

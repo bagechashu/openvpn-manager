@@ -1,7 +1,6 @@
 package openvpn
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -38,12 +37,12 @@ func HandlerVpnUserShow(c *gin.Context) {
 		"response": gin.H{
 			"users": users,
 			"count": len(users),
-			"msg":   fmt.Sprintf("user query successfully"),
+			"msg":   "user query successfully",
 		},
 	})
 }
 
-func userShow() (users []string, err error) {
+func userShow() (users []User, err error) {
 	filePath := "/etc/openvpn/server/easy-rsa/pki/index.txt"
 
 	// 读取文件内容
@@ -59,7 +58,10 @@ func userShow() (users []string, err error) {
 		if strings.HasPrefix(line, "V") && !strings.Contains(line, "=server") {
 			parts := strings.Split(line, "=")
 			if len(parts) > 1 {
-				users = append(users, parts[1])
+				user := User{
+					Username: parts[1],
+				}
+				users = append(users, user)
 			}
 		}
 	}

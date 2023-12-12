@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { reactive } from 'vue'
-import { getInfo } from "../api/vpninfo";
+import { getInfo } from "../api/vpn";
 
 export const useVpnStore = defineStore('vpn', () => {
     const vpnInfo = reactive({})

@@ -36,7 +36,7 @@ func HandlerVpnUserAdd(c *gin.Context) {
 		c.JSON(http.StatusForbidden, gin.H{
 			"status": "failed",
 			"response": gin.H{
-				"msg": err,
+				"msg": fmt.Sprintf("error: %v", err),
 			},
 		})
 		return

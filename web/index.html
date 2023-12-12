@@ -223,12 +223,12 @@
 
                 const userList = document.createElement("ul");
                 userList.id = "userList";
-                response.response.users.forEach((username) => {
+                response.response.users.forEach((user) => {
                   const li = document.createElement("li");
                   li.innerHTML = `<div class="flex-left user-details">
-                    <div class="unit-3-4">${username}</div>
-                    <a class="unit-1-4" href="/api/user/cert/${username}.ovpn"> Download ovpn file </a>
-                    <button class="unit-1-4 btn-danger" style="display: none" id="deleteUser-${username}" onclick="deleteUser('${username}')">Delete</button>
+                    <div class="unit-3-4">${user.username}</div>
+                    <a class="unit-1-4" href="/api/user/cert/${user.username}.ovpn"> Download ovpn file </a>
+                    <button class="unit-1-4 btn-danger" style="display: none" id="deleteUser-${user.username}" onclick="deleteUser('${user.username}')">Delete</button>
                   </div>
                   `;
                   userList.appendChild(li);

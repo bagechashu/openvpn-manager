@@ -32,7 +32,7 @@ func HandlerVpnUserRevoke(c *gin.Context) {
 		c.JSON(400, gin.H{
 			"status": "failed",
 			"response": gin.H{
-				"msg": fmt.Sprintf("username is required"),
+				"msg": "username is required",
 			},
 		})
 		return

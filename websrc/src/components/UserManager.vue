@@ -5,7 +5,6 @@
     <n-h3 prefix="bar" class="controlbar-left">User List</n-h3>
     <div class="controlbar-right">
       <n-button @click="showCreateUserModal = true" size="small" color="#44aaee"> Create </n-button>
-      <n-button size="small" type="warning"> Edit </n-button>
     </div>
   </div>
   <n-modal
@@ -16,70 +15,127 @@
     negative-text="cancel"
     @positive-click="submitCallback"
     @negative-click="cancelCallback">
-    <n-input v-model:value="username" type="text" placeholder="ovpn-20231212" />
+    <div>
+      <div>username</div>
+      <n-input v-model:value="username" type="text" placeholder="eg: ovpn-20231212" />
+    </div>
   </n-modal>
-  <n-data-table :columns="columns" :bordered="false" :data="data" :pagination="pagination" />
+  <n-data-table
+    :columns="columns"
+    :bordered="false"
+    :single-line="false"
+    :striped="true"
+    :scroll-x="300"
+    :data="users.value"
+    :pagination="pagination"
+    :paginate-single-page="false" />
   <n-back-top :right="100" />
 </template>
 
 <script setup>
-import { ref, h, defineComponent } from "vue";
-import { NButton, NModal } from "naive-ui";
+import { ref, h } from "vue";
+import { storeToRefs } from "pinia";
+import { NButton, NIcon, NModal } from "naive-ui";
+import { useUsersStore } from "../stores/users";
+import { getUsers, createUser, deleteUser } from "../api/user";
 
-const data = [{ username: "Wonderwall" }, { username: "Don't Look Back in Anger" }, { username: "Champagne Supernova" }];
+const usersStore = useUsersStore();
+const { users } = storeToRefs(usersStore);
+
+if (Object.keys(users.value).length === 0) {
+  getUsers()
+    .then((res) => {
+      usersStore.users.value = res.response.users;
+      // console.log(res.response.users);
+      // console.log(users.value);
+    })
+    .catch((error) => {
+      console.error("Error fetching users:", error);
+    });
+}
+
+// const users = [{ username: "Wonderwall" }, { username: "Don't Look Back in Anger" }, { username: "Champagne Supernova" }];
 const pagination = {
   pageSize: 10,
 };
-const createColumns = ({ deleteUser }) => {
+
+// TODO: 设置隐藏 delete 按钮
+const createColumns = ({ delUser }) => {
   return [
     {
       title: "Username",
       key: "username",
+      minWidth: 100,
     },
     {
-      title: "Download",
-      key: "download",
+      title: "Manage",
+      key: "manage",
+      align: "center",
+      titleAlign: "center",
+      minWidth: 200,
       render(row) {
-        return h(
-          "a",
-          {
-            href: `/api/user/cert/${row.username}.ovpn`,
-          },
-          { default: () => "Download Ovpn" }
-        );
-      },
-    },
-    {
-      title: "Delete",
-      key: "delete",
-      render(row) {
-        return h(
-          NButton,
-          {
-            strong: true,
-            tertiary: true,
-            size: "small",
-            onClick: () => deleteUser(row),
-          },
-          { default: () => "delete" }
-        );
+        return h("div", [
+          h("span", [
+            h("img", {
+              src: "/image/CloudDownload.svg",
+            }),
+            h(
+              "a",
+              {
+                href: `/api/user/cert/${row.username}.ovpn`,
+              },
+              { default: () => "OvpnFile" }
+            ),
+          ]),
+          h(
+            NButton,
+            {
+              // strong: true,
+              // tertiary: true,
+              size: "small",
+              type: "error",
+              style: {
+                marginLeft: "1.5rem",
+              },
+              onClick: () => delUser(row),
+            },
+            { default: () => "delete" }
+          ),
+        ]);
       },
     },
   ];
 };
 const columns = createColumns({
-  deleteUser(row) {
-    window.$message.info(`deleteUser ${row.title}`);
+  delUser(row) {
+    // TODO: 删除用户后, 刷新 users
+    deleteUser(row.username)
+      .then((res) => {
+        console.log(res.response.msg);
+        window.$message.info(`[${row.username}] is deleted`);
+      })
+      .catch((error) => {
+        window.$message.error("Error while deleting users:", error);
+      });
   },
 });
 
 const showCreateUserModal = ref(false);
-let username = "";
+const username = ref("");
 function cancelCallback() {
   window.$message.warning("Cancel");
 }
 function submitCallback() {
-  window.$message.success("Submit");
+  // TODO: 创建用户后, 刷新 users
+  const data = JSON.stringify({ username: username.value });
+  createUser(data)
+    .then((res) => {
+      console.log(res.response.msg);
+      window.$message.success(`[${username.value}] is created`);
+    })
+    .catch((error) => {
+      window.$message.error("Error when creating users:", error);
+    });
 }
 </script>
 
@@ -95,9 +151,6 @@ function submitCallback() {
   display: inline-block;
   position: absolute;
   right: 0px;
-  margin-right: 0.5rem;
-}
-.table-control.n-button {
   margin-right: 0.5rem;
 }
 .n-button {

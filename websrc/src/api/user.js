@@ -18,7 +18,7 @@ export function createUser(data) {
 
 export function deleteUser(username) {
     return request({
-        url: `/api/user/delete/${username}`,
+        url: `/api/user/revoke/${username}`,
         method: 'delete',
     })
 }
