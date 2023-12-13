@@ -26,7 +26,7 @@
     :single-line="false"
     :striped="true"
     :scroll-x="300"
-    :data="users.value"
+    :data="usersStore.users.value"
     :pagination="pagination"
     :paginate-single-page="false" />
   <n-back-top :right="100" />
@@ -35,7 +35,7 @@
 <script setup>
 import { ref, h } from "vue";
 import { storeToRefs } from "pinia";
-import { NButton, NIcon, NModal } from "naive-ui";
+import { NDataTable, NInput, NButton, NModal } from "naive-ui";
 import { useUsersStore } from "../stores/users";
 import { getUsers, createUser, deleteUser } from "../api/user";
 
@@ -60,65 +60,63 @@ const pagination = {
 };
 
 // TODO: 设置隐藏 delete 按钮
-const createColumns = ({ delUser }) => {
-  return [
-    {
-      title: "Username",
-      key: "username",
-      minWidth: 100,
-    },
-    {
-      title: "Manage",
-      key: "manage",
-      align: "center",
-      titleAlign: "center",
-      minWidth: 200,
-      render(row) {
-        return h("div", [
-          h("span", [
-            h("img", {
-              src: "/image/CloudDownload.svg",
-            }),
-            h(
-              "a",
-              {
-                href: `/api/user/cert/${row.username}.ovpn`,
-              },
-              { default: () => "OvpnFile" }
-            ),
-          ]),
-          h(
-            NButton,
-            {
-              // strong: true,
-              // tertiary: true,
-              size: "small",
-              type: "error",
-              style: {
-                marginLeft: "1.5rem",
-              },
-              onClick: () => delUser(row),
-            },
-            { default: () => "delete" }
-          ),
-        ]);
-      },
-    },
-  ];
-};
-const columns = createColumns({
-  delUser(row) {
-    // TODO: 删除用户后, 刷新 users
-    deleteUser(row.username)
-      .then((res) => {
-        console.log(res.response.msg);
-        window.$message.info(`[${row.username}] is deleted`);
-      })
-      .catch((error) => {
-        window.$message.error("Error while deleting users:", error);
-      });
+const columns = ref([
+  {
+    title: "Username",
+    key: "username",
+    minWidth: 100,
   },
-});
+  {
+    title: "Manage",
+    key: "manage",
+    align: "center",
+    titleAlign: "center",
+    minWidth: 200,
+    render(row) {
+      return h("div", [
+        h("span", [
+          h("img", {
+            src: "/image/CloudDownload.svg",
+          }),
+          h(
+            "a",
+            {
+              href: `/api/user/cert/${row.username}.ovpn`,
+            },
+            { default: () => "OvpnFile" }
+          ),
+        ]),
+        h(
+          NButton,
+          {
+            // strong: true,
+            // tertiary: true,
+            size: "small",
+            type: "error",
+            style: {
+              marginLeft: "1.5rem",
+            },
+            onClick: () => {
+              deleteUser(row.username)
+                .then((res) => {
+                  console.log(res.response.msg);
+                  // location.reload();
+                  window.$message.info(`[${row.username}] is deleted`);
+                  // 删除用户后, 刷新 users
+                  usersStore.delUserLocal(row.username);
+                  // console.log(usersStore.users.value);
+                })
+                .catch((error) => {
+                  window.$message.error("Error while deleting users:", error);
+                });
+            },
+          },
+          { default: () => "delete" }
+        ),
+      ]);
+    },
+  },
+]);
 
 const showCreateUserModal = ref(false);
 const username = ref("");
@@ -126,11 +124,13 @@ function cancelCallback() {
   window.$message.warning("Cancel");
 }
 function submitCallback() {
-  // TODO: 创建用户后, 刷新 users
   const data = JSON.stringify({ username: username.value });
   createUser(data)
     .then((res) => {
       console.log(res.response.msg);
+      // 创建用户后, 刷新 users
+      usersStore.addUserLocal({ username: username.value });
+      // location.reload();
       window.$message.success(`[${username.value}] is created`);
     })
     .catch((error) => {
