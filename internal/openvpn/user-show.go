@@ -65,5 +65,9 @@ func userShow() (users []User, err error) {
 			}
 		}
 	}
+	// 倒序添加, 将后创建的用户放在最前面
+	for i, j := 0, len(users)-1; i < j; i, j = i+1, j-1 {
+		users[i], users[j] = users[j], users[i] //reverse the users
+	}
 	return users, nil
 }
