@@ -2,7 +2,7 @@
 
 <template>
   <div class="controlbar-wrapper">
-    <n-h3 prefix="bar" class="controlbar-left">User List</n-h3>
+    <div class="controlbar-left"><span style="margin-right: 5px">Edit</span><n-switch size="small" v-model:value="isEdit" /></div>
     <div class="controlbar-right">
       <n-button @click="showCreateUserModal = true" size="small" color="#44aaee"> Create </n-button>
     </div>
@@ -13,6 +13,7 @@
     title="create user"
     positive-text="submit"
     negative-text="cancel"
+    style="position: fixed; top: 6rem; left: 50%; transform: translateX(-50%)"
     @positive-click="submitCallback"
     @negative-click="cancelCallback">
     <div>
@@ -35,7 +36,7 @@
 <script setup>
 import { ref, h } from "vue";
 import { storeToRefs } from "pinia";
-import { NDataTable, NInput, NButton, NModal } from "naive-ui";
+import { NDataTable, NInput, NButton, NModal, NSwitch, NPopconfirm } from "naive-ui";
 import { useUsersStore } from "../stores/users";
 import { getUsers, createUser, deleteUser } from "../api/user";
 
@@ -59,64 +60,78 @@ const pagination = {
   pageSize: 10,
 };
 
-// TODO: 设置隐藏 delete 按钮
+const isEdit = ref(false);
 const columns = ref([
   {
-    title: "Username",
+    title: "User",
     key: "username",
-    minWidth: 100,
+    align: "center",
+    titleAlign: "center",
+    minWidth: 50,
   },
   {
     title: "Manage",
     key: "manage",
     align: "center",
     titleAlign: "center",
-    minWidth: 200,
+    minWidth: 100,
     render(row) {
       return h("div", [
-        h("span", [
-          h("img", {
-            src: "/image/CloudDownload.svg",
-          }),
-          h(
-            "a",
-            {
-              href: `/api/user/cert/${row.username}.ovpn`,
-            },
-            { default: () => "OvpnFile" }
-          ),
-        ]),
         h(
-          NButton,
+          "a",
           {
-            // strong: true,
-            // tertiary: true,
-            size: "small",
-            type: "error",
-            style: {
-              marginLeft: "1.5rem",
-            },
-            onClick: () => {
-              deleteUser(row.username)
-                .then((res) => {
-                  console.log(res.response.msg);
-                  // location.reload();
-                  window.$message.info(`[${row.username}] is deleted`);
-                  // 删除用户后, 刷新 users
-                  usersStore.delUserLocal(row.username);
-                  // console.log(usersStore.users.value);
-                })
-                .catch((error) => {
-                  window.$message.error("Error while deleting users:", error);
-                });
-            },
+            href: `/api/user/cert/${row.username}.ovpn`,
           },
-          { default: () => "delete" }
+          { default: () => "OvpnFile" }
+        ),
+        h("img", { src: "/image/CloudDownload.svg" }),
+        h(
+          NPopconfirm,
+          {
+            onPositiveClick() {
+              delUser(row);
+            },
+            onNegativeClick() {
+              window.$message.warning(`cancel`);
+            },
+            negativeText: "cancel",
+            positiveText: "confirm",
+            showIcon: true,
+          },
+          {
+            trigger: () =>
+              h(
+                NButton,
+                {
+                  strong: true,
+                  size: "small",
+                  type: "error",
+                  disabled: !isEdit.value,
+                },
+                { default: () => "delete" }
+              ),
+            default: () => h("span", {}, { default: () => `Are you sure to delete [${row.username}]?` }),
+          }
         ),
       ]);
     },
   },
 ]);
+
+function delUser(row) {
+  deleteUser(row.username)
+    .then((res) => {
+      console.log(res.response.msg);
+      // location.reload();
+      window.$message.info(`[${row.username}] is deleted`);
+      // 删除用户后, 刷新 users
+      usersStore.delUserLocal(row.username);
+      // console.log(usersStore.users.value);
+    })
+    .catch((error) => {
+      window.$message.error("Error while deleting users:", error);
+    });
+}
 
 const showCreateUserModal = ref(false);
 const username = ref("");
@@ -142,6 +157,9 @@ function submitCallback() {
 <style scoped>
 .controlbar-wrapper {
   position: relative;
+  justify-content: space-between;
+  align-items: center;
+  height: 2.5rem;
 }
 .controlbar-left {
   display: inline-block;
