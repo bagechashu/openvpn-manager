@@ -36,9 +36,10 @@
 <script setup>
 import { ref, h } from "vue";
 import { storeToRefs } from "pinia";
-import { NDataTable, NInput, NButton, NModal, NSwitch, NPopconfirm } from "naive-ui";
+import { NDataTable, NInput, NButton, NModal, NSwitch, NPopconfirm, NIcon } from "naive-ui";
 import { useUsersStore } from "../stores/users";
 import { getUsers, createUser, deleteUser } from "../api/user";
+import { CloudDownload } from "@vicons/tabler";
 
 const usersStore = useUsersStore();
 const { users } = storeToRefs(usersStore);
@@ -74,17 +75,26 @@ const columns = ref([
     key: "manage",
     align: "center",
     titleAlign: "center",
-    minWidth: 100,
+    minWidth: 200,
     render(row) {
       return h("div", [
         h(
-          "a",
+          NButton,
           {
-            href: `/api/user/cert/${row.username}.ovpn`,
+            text: true,
+            size: "small",
+            strong: true,
+            type: "primary",
+            style: { display: !isEdit.value ? "inline-flex" : "none" },
+            onClick: () => {
+              window.location.href = `/api/user/cert/${row.username}.ovpn`;
+            },
           },
-          { default: () => "OvpnFile" }
+          {
+            default: () => "Download Ovpn File",
+            icon: () => h(NIcon, { color: "#000", size: 24 }, { default: () => h(CloudDownload) }),
+          }
         ),
-        h("img", { src: "/image/CloudDownload.svg" }),
         h(
           NPopconfirm,
           {
@@ -106,7 +116,7 @@ const columns = ref([
                   strong: true,
                   size: "small",
                   type: "error",
-                  disabled: !isEdit.value,
+                  style: { display: isEdit.value ? "inline-flex" : "none" },
                 },
                 { default: () => "delete" }
               ),
@@ -170,8 +180,5 @@ function submitCallback() {
   position: absolute;
   right: 0px;
   margin-right: 0.5rem;
-}
-.n-button {
-  width: 4rem;
 }
 </style>
