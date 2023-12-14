@@ -13,7 +13,7 @@
     title="create user"
     positive-text="submit"
     negative-text="cancel"
-    style="position: fixed; top: 6rem; left: 50%; transform: translateX(-50%)"
+    style="position: fixed; top: 11rem; left: 50%; transform: translateX(-50%)"
     @positive-click="submitCallback"
     @negative-click="cancelCallback">
     <div>
@@ -36,7 +36,7 @@
 <script setup>
 import { ref, h } from "vue";
 import { storeToRefs } from "pinia";
-import { NDataTable, NInput, NButton, NModal, NSwitch, NPopconfirm, NIcon } from "naive-ui";
+import { NDataTable, NInput, NButton, NModal, NSwitch, NIcon } from "naive-ui";
 import { useUsersStore } from "../stores/users";
 import { getUsers, createUser, deleteUser } from "../api/user";
 import { CloudDownload } from "@vicons/tabler";
@@ -96,57 +96,51 @@ const columns = ref([
           }
         ),
         h(
-          NPopconfirm,
+          NButton,
           {
-            onPositiveClick() {
-              delUser(row);
-            },
-            onNegativeClick() {
-              window.$message.warning(`cancel`);
-            },
-            negativeText: "cancel",
-            positiveText: "confirm",
-            showIcon: true,
+            strong: true,
+            size: "small",
+            type: "error",
+            style: { display: isEdit.value ? "inline-flex" : "none" },
+            onClick: () => delAfterConfirm(row),
           },
-          {
-            trigger: () =>
-              h(
-                NButton,
-                {
-                  strong: true,
-                  size: "small",
-                  type: "error",
-                  style: { display: isEdit.value ? "inline-flex" : "none" },
-                },
-                { default: () => "delete" }
-              ),
-            default: () => h("span", {}, { default: () => `Are you sure to delete [${row.username}]?` }),
-          }
+          { default: () => "delete" }
         ),
       ]);
     },
   },
 ]);
-
-function delUser(row) {
-  deleteUser(row.username)
-    .then((res) => {
-      console.log(res.response.msg);
-      // location.reload();
-      window.$message.info(`[${row.username}] is deleted`);
-      // 删除用户后, 刷新 users
-      usersStore.delUserLocal(row.username);
-      // console.log(usersStore.users.value);
-    })
-    .catch((error) => {
-      window.$message.error("Error while deleting users:", error);
-    });
+function delAfterConfirm(row) {
+  window.$dialog.warning({
+    title: "Warning",
+    content: `Are you sure to delete user [ ${row.username} ]?`,
+    positiveText: "Sure",
+    negativeText: "Cancel",
+    style: "position: fixed; top: 11rem; left: 50%; transform: translateX(-50%)",
+    onPositiveClick: () => {
+      deleteUser(row.username)
+        .then((res) => {
+          console.log(res.response.msg);
+          // location.reload();
+          window.$message.success(`[ ${row.username} ] is deleted`, { duration: 2000 });
+          // 删除用户后, 刷新 users
+          usersStore.delUserLocal(row.username);
+          // console.log(usersStore.users.value);
+        })
+        .catch((error) => {
+          window.$message.error(`Error while deleting users: ${error}`, { duration: 2000 });
+        });
+    },
+    // onNegativeClick: () => {
+    //   window.$message.error("Canceled!");
+    // },
+  });
 }
 
 const showCreateUserModal = ref(false);
 const username = ref("");
 function cancelCallback() {
-  window.$message.warning("Cancel");
+  window.$message.warning("Canceled!");
 }
 function submitCallback() {
   const data = JSON.stringify({ username: username.value });
@@ -156,10 +150,10 @@ function submitCallback() {
       // 创建用户后, 刷新 users
       usersStore.addUserLocal({ username: username.value });
       // location.reload();
-      window.$message.success(`[${username.value}] is created`);
+      window.$message.success(`[${username.value}] is created`, { duration: 2000 });
     })
     .catch((error) => {
-      window.$message.error("Error when creating users:", error);
+      window.$message.error(`Error when creating users: ${error}`, { duration: 2000 });
     });
 }
 </script>
