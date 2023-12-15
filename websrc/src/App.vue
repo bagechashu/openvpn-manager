@@ -2,7 +2,7 @@
 
 <template>
   <header>
-    <img src="./assets/image/ovpnmgr.png" style="width: 40px; height: 40px; margin: 12px 10px 0 10px" />
+    <img src="/img/ovpnmgr.png" style="width: 40px; height: 40px; margin: 12px 10px 0 10px" />
     <h2 style="margin-top: 12px">OpenVPN Manager</h2>
   </header>
 
