@@ -146,11 +146,13 @@ function submitCallback() {
   const data = JSON.stringify({ username: username.value });
   createUser(data)
     .then((res) => {
-      console.log(res.response.msg);
-      // 创建用户后, 刷新 users
-      usersStore.addUserLocal({ username: username.value });
-      // location.reload();
-      window.$message.success(`[${username.value}] is created`, { duration: 2000 });
+      console.log(res.response.msg, res.status);
+      if (res.status === "success") {
+        // 创建用户后, 刷新 users
+        usersStore.addUserLocal({ username: username.value });
+        // location.reload();
+        window.$message.success(`[${username.value}] creat success`, { duration: 2000 });
+      }
     })
     .catch((error) => {
       window.$message.error(`Error when creating users: ${error}`, { duration: 2000 });

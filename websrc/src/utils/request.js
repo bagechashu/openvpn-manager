@@ -19,7 +19,11 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
     response => {
-        const { data } = response
+        const { status, data } = response
+        switch (status) {
+            case 209:
+                window.$message.warning(data.response.msg, { duration: 2000 })
+        }
         return Promise.resolve(data)
     },
     error => {
@@ -30,7 +34,7 @@ instance.interceptors.response.use(
                 window.$message.error('No Permission, Please Login!', { duration: 2000 })
                 break
             default:
-                window.$message.error(data.message || error.message, { duration: 2000 })
+                window.$message.error(data.response.msg || error.message, { duration: 2000 })
         }
         return Promise.reject(error);
     }
