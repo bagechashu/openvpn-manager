@@ -2,7 +2,9 @@ package vm
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -39,9 +41,20 @@ func fetchVPNInfo() (*ipinfo, error) {
 	}
 
 	vpn := &ipinfo{}
-	err = json.Unmarshal(body, vpn)
-	if err != nil {
+	if err = json.Unmarshal(body, vpn); err != nil {
 		return nil, err
+	}
+	log.Printf("vpn unmarshal result: %s, \nfetch vpn result: \n%s", vpn, body)
+
+	// 	{
+	//   "status": 429,
+	//   "error": {
+	//     "title": "Rate limit exceeded",
+	//     "message": "You've hit the daily limit for the unauthenticated API.  Create an API access token by signing up to get 50k req/month."
+	//   }
+	//  }
+	if vpn.IP == "" {
+		return nil, errors.New("ipinfo.io rate limit exceeded")
 	}
 
 	return vpn, nil
