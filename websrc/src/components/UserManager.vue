@@ -36,7 +36,7 @@
 <script setup>
 import { ref, h } from "vue";
 import { storeToRefs } from "pinia";
-import { NDataTable, NInput, NButton, NModal, NSwitch, NIcon } from "naive-ui";
+import { NDataTable, NInput, NButton, NModal, NSwitch, NIcon, NBackTop } from "naive-ui";
 import { useUsersStore } from "../stores/users";
 import { getUsers, createUser, deleteUser } from "../api/user";
 import { CloudDownload } from "@vicons/tabler";

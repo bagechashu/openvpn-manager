@@ -31,7 +31,7 @@
 <script setup>
 import VpnInfo from "./components/VpnInfo.vue";
 import UserManager from "./components/UserManager.vue";
-import { NMessageProvider, NDialogProvider } from "naive-ui";
+import { NMessageProvider, NDialogProvider, NTabs, NTabPane } from "naive-ui";
 import MessageContainer from "./components/global/MessageContainer.vue";
 import DialogContainer from "./components/global/DialogContainer.vue";
 </script>

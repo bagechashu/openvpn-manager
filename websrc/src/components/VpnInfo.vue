@@ -17,6 +17,7 @@
 </template>
 
 <script setup>
+import { NGrid, NGridItem, NList, NListItem, NThing } from "naive-ui";
 import { storeToRefs } from "pinia";
 import { useVpnStore } from "../stores/vpn";
 import { getInfo } from "../api/vpn";
