@@ -3,10 +3,8 @@ package openvpn
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
-	"github.com/bagechashu/openvpn-manager/internal/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,17 +14,6 @@ var easyrsaEnv = "EASYRSA_PKI=/etc/openvpn/server/easy-rsa/pki"
 // var groupName = vm.GetNobodyGroup()
 
 func HandlerVpnUserRevoke(c *gin.Context) {
-	// get user, it was set by the BasicAuth middleware
-	user := c.MustGet(gin.AuthUserKey).(string)
-	if _, ok := config.Secrets[user]; !ok {
-		c.JSON(http.StatusForbidden, gin.H{
-			"status": "failed",
-			"response": gin.H{
-				"msg": fmt.Sprintf("user %s didn't have permission", user),
-			},
-		})
-		return
-	}
 	username := c.Param("username")
 	if username == "" {
 		c.JSON(400, gin.H{

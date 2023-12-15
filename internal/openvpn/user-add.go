@@ -18,17 +18,6 @@ type RequestUserAdd struct {
 }
 
 func HandlerVpnUserAdd(c *gin.Context) {
-	// get user, it was set by the BasicAuth middleware
-	user := c.MustGet(gin.AuthUserKey).(string)
-	if _, ok := config.Secrets[user]; !ok {
-		c.JSON(http.StatusForbidden, gin.H{
-			"status": "failed",
-			"response": gin.H{
-				"msg": fmt.Sprintf("user %s didn't have permission", user),
-			},
-		})
-		return
-	}
 	var requestBody RequestUserAdd
 
 	err := c.BindJSON(&requestBody)
@@ -180,8 +169,7 @@ func generateClientConfig(client string) error {
 		clientCommon, caCert, clientCert, clientKey, tlsCrypt,
 	))
 
-	// 写入客户端配置文件到 ovpn 目录下
-	ovpnDir := "ovpn" // 存放配置文件的目录名
+	ovpnDir := config.GlobalConfig.Ovpn.CertPath // 存放配置文件的目录名
 	err = os.MkdirAll(ovpnDir, 0755)
 	if err != nil {
 		return err
