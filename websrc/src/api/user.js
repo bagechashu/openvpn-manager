@@ -4,6 +4,7 @@ export function getUsers(params) {
     return request({
         url: '/api/user/show',
         method: 'get',
+        timeout: 60000,
         params
     })
 }
