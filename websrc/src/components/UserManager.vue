@@ -30,7 +30,7 @@
     :data="usersStore.users.value"
     :pagination="pagination"
     :paginate-single-page="false" />
-  <n-back-top :right="100" />
+  <n-back-top :bottom="5" :right="5" :visibility-height="300"/>
 </template>
 
 <script setup>
