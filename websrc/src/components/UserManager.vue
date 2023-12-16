@@ -30,7 +30,7 @@
     :data="usersStore.users.value"
     :pagination="pagination"
     :paginate-single-page="false" />
-  <n-back-top :bottom="5" :right="5" :visibility-height="300"/>
+  <n-back-top :bottom="5" :right="5" :visibility-height="300" />
 </template>
 
 <script setup>
@@ -116,19 +116,20 @@ function downloadCert(username) {
     responseType: "blob",
   })
     .then((res) => {
-      let data = res.data; // 这里后端对文件流做了一层封装，将data指向res.data即可
+      let data = res.data; // axios.response.data
       if (!data) {
         return;
       }
-      let url = window.URL.createObjectURL(new Blob([data]));
+      // To let android don't fix extname of file, Blob set type to octet.
+      let url = window.URL.createObjectURL(new Blob([data], { type: "application/octet-stream" }));
       let a = document.createElement("a");
       a.style.display = "none";
       a.href = url;
       a.setAttribute("download", `${username}.ovpn`);
       document.body.appendChild(a);
-      a.click(); //执行下载
-      window.URL.revokeObjectURL(a.href); //释放url
-      document.body.removeChild(a); //释放标签
+      a.click(); //exec download
+      window.URL.revokeObjectURL(a.href); //release url
+      document.body.removeChild(a); //release tag
     })
     .catch((error) => {
       // console.log(error);
