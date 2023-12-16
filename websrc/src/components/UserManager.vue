@@ -40,6 +40,7 @@ import { NDataTable, NInput, NButton, NModal, NSwitch, NIcon, NBackTop } from "n
 import { useUsersStore } from "../stores/users";
 import { getUsers, createUser, deleteUser } from "../api/user";
 import { CloudDownload } from "@vicons/tabler";
+import axios from "axios";
 
 const usersStore = useUsersStore();
 const { users } = storeToRefs(usersStore);
@@ -86,9 +87,7 @@ const columns = ref([
             strong: true,
             type: "primary",
             style: { display: !isEdit.value ? "inline-flex" : "none" },
-            onClick: () => {
-              window.location.href = `/api/user/cert/${row.username}.ovpn`;
-            },
+            onClick: () => downloadCert(row.username),
           },
           {
             default: () => "Download Ovpn File",
@@ -110,6 +109,32 @@ const columns = ref([
     },
   },
 ]);
+function downloadCert(username) {
+  axios({
+    method: "get",
+    url: `/api/user/cert/${username}.ovpn`,
+    responseType: "blob",
+  })
+    .then((res) => {
+      let data = res.data; // 这里后端对文件流做了一层封装，将data指向res.data即可
+      if (!data) {
+        return;
+      }
+      let url = window.URL.createObjectURL(new Blob([data]));
+      let a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.setAttribute("download", `${username}.ovpn`);
+      document.body.appendChild(a);
+      a.click(); //执行下载
+      window.URL.revokeObjectURL(a.href); //释放url
+      document.body.removeChild(a); //释放标签
+    })
+    .catch((error) => {
+      // console.log(error);
+      window.$message.error(`${error.response.status} ${error.response.statusText}`, { duration: 2000 });
+    });
+}
 function delAfterConfirm(row) {
   window.$dialog.warning({
     title: "Warning",
