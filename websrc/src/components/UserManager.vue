@@ -4,18 +4,19 @@
   <div class="controlbar-wrapper">
     <div class="controlbar-left"><span style="margin-right: 5px">Edit</span><n-switch size="small" v-model:value="isEdit" /></div>
     <div class="controlbar-right">
-      <n-button @click="showCreateUserModal = true" size="small" color="#44aaee"> Create </n-button>
+      <n-button v-show="!isEdit" @click="showUserCreateModal = true" size="small" color="#44aaee"> Create </n-button>
+      <n-button v-show="isEdit" @click="clickOvpnRestart" size="small" type="warning"> restart </n-button>
     </div>
   </div>
   <n-modal
-    v-model:show="showCreateUserModal"
+    v-model:show="showUserCreateModal"
     preset="dialog"
     title="create user"
     positive-text="submit"
     negative-text="cancel"
     style="position: fixed; top: 11rem; left: 50%; transform: translateX(-50%)"
-    @positive-click="submitCallback"
-    @negative-click="cancelCallback">
+    @positive-click="clickUserCreate"
+    @negative-click="clickCancelUserCreate">
     <div>
       <div>username</div>
       <n-input v-model:value="username" type="text" placeholder="eg: ovpn-20231212" />
@@ -38,7 +39,7 @@ import { ref, h } from "vue";
 import { storeToRefs } from "pinia";
 import { NDataTable, NInput, NButton, NModal, NSwitch, NIcon, NBackTop } from "naive-ui";
 import { useUsersStore } from "../stores/users";
-import { getUsers, createUser, deleteUser } from "../api/user";
+import { getUsers, createUser, deleteUser, ovpnRestart } from "../api/user";
 import { CloudDownload } from "@vicons/tabler";
 import axios from "axios";
 
@@ -57,12 +58,55 @@ if (Object.keys(users.value).length === 0) {
     });
 }
 
+const isEdit = ref(false);
+
+const showUserCreateModal = ref(false);
+const username = ref("");
+function clickCancelUserCreate() {
+  window.$message.warning("Canceled!");
+}
+function clickUserCreate() {
+  const data = JSON.stringify({ username: username.value });
+  createUser(data)
+    .then((res) => {
+      console.log(res.response.msg, res.status);
+      if (res.status === "success") {
+        // 创建用户后, 刷新 users
+        usersStore.addUserLocal({ username: username.value });
+        // location.reload();
+        window.$message.success(`[${username.value}] creat success`, { duration: 2000 });
+      }
+    })
+    .catch((error) => {
+      window.$message.error(`Error when creating users: ${error}`, { duration: 2000 });
+    });
+}
+
 // const users = [{ username: "Wonderwall" }, { username: "Don't Look Back in Anger" }, { username: "Champagne Supernova" }];
 const pagination = {
   pageSize: 10,
 };
 
-const isEdit = ref(false);
+function clickOvpnRestart() {
+  window.$dialog.warning({
+    title: "Warning",
+    content: `Are you sure to restart openvpn service?`,
+    positiveText: "Sure",
+    negativeText: "Cancel",
+    style: "position: fixed; top: 11rem; left: 50%; transform: translateX(-50%)",
+    onPositiveClick: () => {
+      ovpnRestart()
+        .then((res) => {
+          console.log(res.response.msg);
+          window.$message.success(`openvpn service is restart`, { duration: 2000 });
+        })
+        .catch((error) => {
+          window.$message.error(`openvpn service restart error: ${error}`, { duration: 2000 });
+        });
+    },
+  });
+}
+
 const columns = ref([
   {
     title: "User",
@@ -87,7 +131,7 @@ const columns = ref([
             strong: true,
             type: "primary",
             style: { display: !isEdit.value ? "inline-flex" : "none" },
-            onClick: () => downloadCert(row.username),
+            onClick: () => clickCertDownload(row.username),
           },
           {
             default: () => "Download Ovpn File",
@@ -101,7 +145,7 @@ const columns = ref([
             size: "small",
             type: "error",
             style: { display: isEdit.value ? "inline-flex" : "none" },
-            onClick: () => delAfterConfirm(row),
+            onClick: () => clickUserDelete(row),
           },
           { default: () => "delete" }
         ),
@@ -109,7 +153,7 @@ const columns = ref([
     },
   },
 ]);
-function downloadCert(username) {
+function clickCertDownload(username) {
   axios({
     method: "get",
     url: `/api/user/cert/${username}.ovpn`,
@@ -136,7 +180,7 @@ function downloadCert(username) {
       window.$message.error(`${error.response.status} ${error.response.statusText}`, { duration: 2000 });
     });
 }
-function delAfterConfirm(row) {
+function clickUserDelete(row) {
   window.$dialog.warning({
     title: "Warning",
     content: `Are you sure to delete user [ ${row.username} ]?`,
@@ -148,7 +192,7 @@ function delAfterConfirm(row) {
         .then((res) => {
           console.log(res.response.msg);
           // location.reload();
-          window.$message.success(`[ ${row.username} ] is deleted`, { duration: 2000 });
+          window.$message.success(`[ ${row.username} ] is deleted, click [restart] will finally take effect.`, { duration: 2000 });
           // 删除用户后, 刷新 users
           usersStore.delUserLocal(row.username);
           // console.log(usersStore.users.value);
@@ -161,28 +205,6 @@ function delAfterConfirm(row) {
     //   window.$message.error("Canceled!");
     // },
   });
-}
-
-const showCreateUserModal = ref(false);
-const username = ref("");
-function cancelCallback() {
-  window.$message.warning("Canceled!");
-}
-function submitCallback() {
-  const data = JSON.stringify({ username: username.value });
-  createUser(data)
-    .then((res) => {
-      console.log(res.response.msg, res.status);
-      if (res.status === "success") {
-        // 创建用户后, 刷新 users
-        usersStore.addUserLocal({ username: username.value });
-        // location.reload();
-        window.$message.success(`[${username.value}] creat success`, { duration: 2000 });
-      }
-    })
-    .catch((error) => {
-      window.$message.error(`Error when creating users: ${error}`, { duration: 2000 });
-    });
 }
 </script>
 

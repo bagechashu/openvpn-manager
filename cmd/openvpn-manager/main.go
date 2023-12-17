@@ -46,7 +46,7 @@ func main() {
 		r.StaticFS("/web", http.Dir("./web/"))
 	}
 
-	r.GET("/api/vpn/info", vm.HandlerVpnInfo)
+	r.GET("/api/vm/info", vm.HandlerVpnInfo)
 
 	// Group using gin.BasicAuth() middleware
 	// gin.Accounts is a shortcut for map[string]string
@@ -58,6 +58,12 @@ func main() {
 		r_user.DELETE("/delete/:username", openvpn.HandlerVpnUserRevoke)
 		r_user.GET("/show", openvpn.HandlerVpnUserShow)
 		r_user.GET("/cert/:filename", openvpn.HandlerVpnUserCert)
+	}
+
+	r_ovpn := r.Group("/api/ovpn", gin.BasicAuth(config.GlobalAccounts))
+	{
+		r_ovpn.GET("/restart", openvpn.HandlerOvpnRestart)
+		r_ovpn.GET("/status", openvpn.HandlerOvpnStatus)
 	}
 
 	http_str := fmt.Sprintf(":%d", config.GlobalConfig.HttpPort)

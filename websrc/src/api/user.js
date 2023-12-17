@@ -23,3 +23,15 @@ export function deleteUser(username) {
         method: 'delete',
     })
 }
+export function ovpnRestart() {
+    return request({
+        url: `/api/ovpn/restart`,
+        method: 'get',
+    })
+}
+export function ovpnStatus() {
+    return request({
+        url: `/api/ovpn/status`,
+        method: 'get',
+    })
+}

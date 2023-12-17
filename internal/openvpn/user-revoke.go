@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
+	"github.com/bagechashu/openvpn-manager/internal/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -54,8 +56,20 @@ func userRevoke(client string) (err error) {
 	if err = resetCrlFile(); err != nil {
 		return err
 	}
+	if err = deleteFile(config.GlobalConfig.Ovpn.CertPath, fmt.Sprintf("%s.ovpn", client)); err != nil {
+		return err
+	}
 
 	log.Printf("%s revoked!\n", client)
+	return nil
+}
+
+func deleteFile(dirPath, fileName string) error {
+	err := os.Remove(filepath.Join(dirPath, fileName))
+	if err != nil {
+		return fmt.Errorf("delete [ %s ] error: %w", fileName, err)
+	}
+	log.Printf("[ %s ] is deleted.", filepath.Join(dirPath, fileName))
 	return nil
 }
 

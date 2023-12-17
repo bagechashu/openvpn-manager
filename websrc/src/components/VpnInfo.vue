@@ -14,16 +14,23 @@
       </n-thing>
     </n-list-item>
   </n-list>
+  <n-card title="Openvpn Service Status">
+    <template #header-extra>
+      <n-button @click="clickOvpnStatus" size="small" type="info"> Check </n-button>
+    </template>
+    <div v-html="ovpnStatusResult"></div>
+  </n-card>
 </template>
 
 <script setup>
-import { NGrid, NGridItem, NList, NListItem, NThing } from "naive-ui";
+import { NGrid, NGridItem, NList, NListItem, NThing, NButton, NCard } from "naive-ui";
 import { storeToRefs } from "pinia";
-import { useVpnStore } from "../stores/vpn";
-import { getInfo } from "../api/vpn";
+import { useVpnStore } from "../stores/vm";
+import { ovpnStatus } from "../api/user";
+import { getInfo } from "../api/vm";
 
 const vpnStore = useVpnStore();
-const { vpnInfo } = storeToRefs(vpnStore);
+const { vpnInfo, ovpnStatusResult } = storeToRefs(vpnStore);
 
 if (Object.keys(vpnInfo.value).length === 0) {
   getInfo()
@@ -40,6 +47,18 @@ if (Object.keys(vpnInfo.value).length === 0) {
 //   if (Object.keys(vpnInfo.value).length !== 0) return;
 //   vpnStore.getVpnInfo();
 // });
+
+function clickOvpnStatus() {
+  ovpnStatus()
+    .then((res) => {
+      // console.log(res.response.msg);
+      vpnStore.ovpnStatusResult = `<pre class="scrollable-pre">${res.response.msg}</pre>`;
+    })
+    .catch((error) => {
+      console.log(error);
+      window.$message.error(`get openvpn status error: ${error}`, { duration: 2000 });
+    });
+}
 </script>
 
 <style scope>
@@ -58,5 +77,13 @@ if (Object.keys(vpnInfo.value).length === 0) {
   word-break: keep-all;
   text-overflow: ellipsis;
   overflow: hidden;
+}
+.n-card {
+  margin-top: 1rem;
+}
+.scrollable-pre {
+  white-space: pre;
+  overflow-x: auto;
+  font-size: 0.6rem;
 }
 </style>
