@@ -1,47 +1,45 @@
 <!-- @format -->
 
 <template>
-  <div class="controlbar-wrapper">
-    <div class="controlbar-left"><span style="margin-right: 5px">Edit</span><n-switch size="small" v-model:value="isEdit" /></div>
-    <div class="controlbar-right">
-      <n-button v-show="!isEdit" @click="showUserCreateModal = true" size="small" color="#44aaee"> Create </n-button>
-      <n-button v-show="isEdit" @click="clickOvpnRestart" size="small" type="warning"> restart </n-button>
-    </div>
-  </div>
-  <n-modal
-    v-model:show="showUserCreateModal"
-    preset="dialog"
-    title="create user"
-    positive-text="submit"
-    negative-text="cancel"
-    style="position: fixed; top: 11rem; left: 50%; transform: translateX(-50%)"
-    @positive-click="clickUserCreate"
-    @negative-click="clickCancelUserCreate">
-    <div>
-      <div>username</div>
-      <n-input v-model:value="username" type="text" placeholder="eg: ovpn-20231212" />
-    </div>
-  </n-modal>
-  <n-data-table
-    :columns="columns"
-    :bordered="false"
-    :single-line="false"
-    :striped="true"
-    :scroll-x="300"
-    :data="usersStore.users.value"
-    :pagination="pagination"
-    :paginate-single-page="false" />
-  <n-back-top :bottom="5" :right="5" :visibility-height="300" />
+  <n-card title="User List">
+    <template #header> <n-button v-show="!isEdit" @click="showUserCreateModal = true" size="small" color="#44aaee"> Create </n-button></template>
+    <template #header-extra>
+      <div><span style="margin-right: 5px">Edit</span><n-switch size="small" v-model:value="isEdit" /></div>
+    </template>
+    <n-modal
+      v-model:show="showUserCreateModal"
+      preset="dialog"
+      title="create user"
+      positive-text="submit"
+      negative-text="cancel"
+      style="position: fixed; top: 11rem; left: 50%; transform: translateX(-50%)"
+      @positive-click="clickUserCreate"
+      @negative-click="clickCancelUserCreate">
+      <div>
+        <div>username</div>
+        <n-input v-model:value="username" type="text" placeholder="eg: ovpn-20231212" />
+      </div>
+    </n-modal>
+    <n-data-table
+      :columns="columns"
+      :bordered="false"
+      :single-line="false"
+      :striped="true"
+      :scroll-x="300"
+      :data="usersStore.users.value"
+      :pagination="pagination"
+      :paginate-single-page="false" />
+    <n-back-top :bottom="5" :right="5" :visibility-height="300" />
+  </n-card>
 </template>
 
 <script setup>
 import { ref, h } from "vue";
 import { storeToRefs } from "pinia";
 import axios from "axios";
-import { NDataTable, NInput, NButton, NModal, NSwitch, NIcon, NBackTop } from "naive-ui";
+import { NDataTable, NInput, NButton, NModal, NSwitch, NIcon, NBackTop, NCard } from "naive-ui";
 import { useUsersStore } from "../stores/users";
 import { getUsers, createUser, deleteUser } from "../api/user";
-import { ovpnRestart } from "../api/vm";
 import { CloudDownload } from "@vicons/tabler";
 
 const usersStore = useUsersStore();
@@ -87,26 +85,6 @@ function clickUserCreate() {
 const pagination = {
   pageSize: 10,
 };
-
-function clickOvpnRestart() {
-  window.$dialog.warning({
-    title: "Warning",
-    content: `Are you sure to restart openvpn service?`,
-    positiveText: "Sure",
-    negativeText: "Cancel",
-    style: "position: fixed; top: 11rem; left: 50%; transform: translateX(-50%)",
-    onPositiveClick: () => {
-      ovpnRestart()
-        .then((res) => {
-          console.log(res.response.msg);
-          window.$message.success(`openvpn service is restart`, { duration: 2000 });
-        })
-        .catch((error) => {
-          window.$message.error(`openvpn service restart error: ${error}`, { duration: 2000 });
-        });
-    },
-  });
-}
 
 const columns = ref([
   {
