@@ -1,4 +1,4 @@
-package vm
+package openvpn
 
 import (
 	"encoding/json"
@@ -28,7 +28,7 @@ var (
 	expiration  time.Time
 )
 
-func fetchVPNInfo() (*ipinfo, error) {
+func fetchIpInfo() (*ipinfo, error) {
 	resp, err := http.Get("http://ipinfo.io")
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func fetchVPNInfo() (*ipinfo, error) {
 	return vpn, nil
 }
 
-func HandlerVpnInfo(c *gin.Context) {
+func HandlerVmIpInfo(c *gin.Context) {
 	mutex.Lock()
 	defer mutex.Unlock()
 
@@ -69,7 +69,7 @@ func HandlerVpnInfo(c *gin.Context) {
 		return
 	}
 
-	newVPNInfo, err := fetchVPNInfo()
+	newIpInfo, err := fetchIpInfo()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": "get ipinfo.io failed.",
@@ -77,7 +77,7 @@ func HandlerVpnInfo(c *gin.Context) {
 		return
 	}
 
-	ipinfoCache = newVPNInfo
+	ipinfoCache = newIpInfo
 	expiration = time.Now().Add(24 * time.Hour)
 
 	c.JSON(http.StatusOK, ipinfoCache)

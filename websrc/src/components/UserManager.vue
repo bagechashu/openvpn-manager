@@ -37,11 +37,12 @@
 <script setup>
 import { ref, h } from "vue";
 import { storeToRefs } from "pinia";
+import axios from "axios";
 import { NDataTable, NInput, NButton, NModal, NSwitch, NIcon, NBackTop } from "naive-ui";
 import { useUsersStore } from "../stores/users";
-import { getUsers, createUser, deleteUser, ovpnRestart } from "../api/user";
+import { getUsers, createUser, deleteUser } from "../api/user";
+import { ovpnRestart } from "../api/vm";
 import { CloudDownload } from "@vicons/tabler";
-import axios from "axios";
 
 const usersStore = useUsersStore();
 const { users } = storeToRefs(usersStore);

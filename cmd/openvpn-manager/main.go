@@ -9,7 +9,6 @@ import (
 
 	"github.com/bagechashu/openvpn-manager/internal/config"
 	"github.com/bagechashu/openvpn-manager/internal/openvpn"
-	"github.com/bagechashu/openvpn-manager/internal/vm"
 	"github.com/bagechashu/openvpn-manager/web"
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
@@ -46,7 +45,7 @@ func main() {
 		r.StaticFS("/web", http.Dir("./web/"))
 	}
 
-	r.GET("/api/vm/info", vm.HandlerVpnInfo)
+	r.GET("/api/vm/info", openvpn.HandlerVmIpInfo)
 
 	// Group using gin.BasicAuth() middleware
 	// gin.Accounts is a shortcut for map[string]string

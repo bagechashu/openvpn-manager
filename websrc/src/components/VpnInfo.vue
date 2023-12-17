@@ -2,7 +2,7 @@
 <template>
   <n-list bordered>
     <n-list-item>
-      <n-thing v-for="(value, name, key) in vpnInfo.value" :key="key">
+      <n-thing v-for="(value, name, key) in vmIpInfo.value" :key="key">
         <n-grid :cols="16" item-responsive>
           <n-grid-item class="name" span="0 500:3">
             {{ name.toUpperCase() }}
@@ -26,17 +26,16 @@
 import { NGrid, NGridItem, NList, NListItem, NThing, NButton, NCard } from "naive-ui";
 import { storeToRefs } from "pinia";
 import { useVpnStore } from "../stores/vm";
-import { ovpnStatus } from "../api/user";
-import { getInfo } from "../api/vm";
+import { getInfo, ovpnStatus } from "../api/vm";
 
 const vpnStore = useVpnStore();
-const { vpnInfo, ovpnStatusResult } = storeToRefs(vpnStore);
+const { vmIpInfo, ovpnStatusResult } = storeToRefs(vpnStore);
 
-if (Object.keys(vpnInfo.value).length === 0) {
+if (Object.keys(vmIpInfo.value).length === 0) {
   getInfo()
     .then((res) => {
-      vpnStore.vpnInfo.value = res;
-      // console.log(vpnInfo.value);
+      vpnStore.vmIpInfo.value = res;
+      // console.log(vmIpInfo.value);
     })
     .catch((error) => {
       console.error("Error fetching VPN info:", error);
@@ -44,8 +43,8 @@ if (Object.keys(vpnInfo.value).length === 0) {
 }
 
 // onMounted(() => {
-//   if (Object.keys(vpnInfo.value).length !== 0) return;
-//   vpnStore.getVpnInfo();
+//   if (Object.keys(vmIpInfo.value).length !== 0) return;
+//   vpnStore.getVmIpInfo();
 // });
 
 function clickOvpnStatus() {

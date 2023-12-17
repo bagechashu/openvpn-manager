@@ -1,4 +1,4 @@
-package vm
+package openvpn
 
 import (
 	"os"

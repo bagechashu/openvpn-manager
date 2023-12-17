@@ -3,12 +3,12 @@ import { reactive, ref } from 'vue'
 import { getInfo } from "../api/vm";
 
 export const useVpnStore = defineStore('vpn', () => {
-    const vpnInfo = reactive({})
+    const vmIpInfo = reactive({})
     const ovpnStatusResult = ref("click 'check' to get!");
-    const getVpnInfo = async () => {
+    const getVmIpInfo = async () => {
         const res = await getInfo()
-        vpnInfo.value = res
+        vmIpInfo.value = res
     }
-    return { vpnInfo, ovpnStatusResult, getVpnInfo }
+    return { vmIpInfo, ovpnStatusResult, getVmIpInfo }
 })
 
