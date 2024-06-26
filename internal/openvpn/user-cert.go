@@ -13,7 +13,7 @@ import (
 func HandlerVpnUserCert(c *gin.Context) {
 	filename := c.Param("filename")
 
-	file := filepath.Join(config.GlobalConfig.Ovpn.CertPath, filename)
+	file := filepath.Join(config.GlobalConfig.Ovpn.CertPath, cleanUsername(filename))
 
 	// check does file exist
 	_, err := os.Stat(file)
